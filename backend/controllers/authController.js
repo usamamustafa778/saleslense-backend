@@ -1,4 +1,5 @@
 const authService = require('../services/authService')
+const prisma = require('../utils/prismaClient')
 
 async function signup(req, res) {
   try {
@@ -49,8 +50,33 @@ async function login(req, res) {
   }
 }
 
+async function me(req, res) {
+  try {
+    const userId = req.user?.userId
+    if (!userId) {
+      return res.status(401).json({ message: 'Invalid or expired token' })
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, email: true, role: true },
+    })
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid or expired token' })
+    }
+
+    return res.json({ user })
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Me error:', error)
+    return res.status(500).json({ message: 'Internal server error' })
+  }
+}
+
 module.exports = {
   signup,
   login,
+  me,
 }
 
