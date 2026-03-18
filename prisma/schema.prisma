@@ -1,0 +1,182 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int              @id @default(autoincrement())
+  email     String           @unique
+  password  String
+  role      String           @default("user")
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  memberships UserTenantRole[]
+}
+
+model Tenant {
+  id           Int              @id @default(autoincrement())
+  name         String
+  baseCurrency String           @default("USD")
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  memberships   UserTenantRole[]
+  orders        Order[]
+  products      Product[]
+  costRecords   CostRecord[]
+  adSpendRecords AdSpendRecord[]
+  rawOrders     RawOrder[]
+  rawProducts   RawProduct[]
+}
+
+model UserTenantRole {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tenantId  Int
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  tenantId     Int
+  sku          String
+  name         String
+  baseCurrency String   @default("USD")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items  OrderItem[]
+  costs  CostRecord[]
+
+  @@unique([tenantId, sku], name: "tenantId_sku")
+  @@index([tenantId])
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  tenantId    Int
+  externalId  String
+  channel     String
+  currency    String   @default("USD")
+  totalAmount Float    @default(0)
+  orderDate   DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant  Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  items   OrderItem[]
+  fees    Fee[]
+  refunds Refund[]
+
+  @@unique([tenantId, externalId], name: "tenantId_externalId")
+  @@index([tenantId, orderDate])
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int      @default(1)
+  unitPrice Float    @default(0)
+  createdAt DateTime @default(now())
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model Fee {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  category  String   @default("GENERAL")
+  amount    Float    @default(0)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model Refund {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  category  String   @default("GENERAL")
+  amount    Float    @default(0)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model CostRecord {
+  id              Int      @id @default(autoincrement())
+  tenantId        Int
+  productId       Int?
+  cogsPerUnit     Float?
+  shippingPerUnit Float?
+  currency        String   @default("USD")
+  effectiveFrom   DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, effectiveFrom])
+  @@index([productId])
+}
+
+model AdSpendRecord {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  channel   String   @default("GENERIC")
+  amount    Float    @default(0)
+  currency  String   @default("USD")
+  spendDate DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, spendDate])
+}
+
+model RawOrder {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  source    String
+  rawCsvRow String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model RawProduct {
+  id        Int      @id @default(autoincrement())
+  tenantId  Int
+  source    String
+  rawCsvRow String
+  createdAt DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
