@@ -1,15 +1,11 @@
 const express = require('express')
 const authMiddleware = require('../middlewares/authMiddleware')
 const tenantAccessMiddleware = require('../middlewares/tenantAccessMiddleware')
-const { getReports, exportReports } = require('../controllers/reportsController')
+const { getDashboardData } = require('../controllers/dashboardController')
 
 const router = express.Router()
 
-router.use(authMiddleware)
-router.use(tenantAccessMiddleware({ source: 'query' }))
-
-router.get('/', getReports)
-router.get('/export', exportReports)
+router.get('/', authMiddleware, tenantAccessMiddleware({ source: 'query' }), getDashboardData)
 
 module.exports = router
 

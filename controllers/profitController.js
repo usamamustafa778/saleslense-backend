@@ -10,7 +10,9 @@ function parseDate(value) {
 
 async function getDashboardSummary(req, res) {
   try {
-    const tenantId = Number(req.query.tenantId || 1)
+    res.setHeader('Deprecation', 'true')
+    res.setHeader('Sunset', 'Wed, 01 Jul 2026 00:00:00 GMT')
+    const tenantId = req.tenantId
     const from = parseDate(req.query.from)
     const to = parseDate(req.query.to)
 
@@ -34,7 +36,9 @@ async function getDashboardSummary(req, res) {
 
 async function getDashboardTrend(req, res) {
   try {
-    const tenantId = Number(req.query.tenantId || 1)
+    res.setHeader('Deprecation', 'true')
+    res.setHeader('Sunset', 'Wed, 01 Jul 2026 00:00:00 GMT')
+    const tenantId = req.tenantId
     const days = req.query.days ? Number(req.query.days) : 30
 
     const trend = await profitService.getTrend({ tenantId, days })
@@ -61,7 +65,7 @@ async function getDashboardTrend(req, res) {
 
 async function getProductProfitability(req, res) {
   try {
-    const tenantId = Number(req.query.tenantId || 1)
+    const tenantId = req.tenantId
     const from = parseDate(req.query.from)
     const to = parseDate(req.query.to)
 

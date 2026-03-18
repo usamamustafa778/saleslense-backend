@@ -1,5 +1,6 @@
 const authService = require('../services/authService')
 const prisma = require('../utils/prismaClient')
+const { generateToken } = require('../utils/jwt')
 
 async function signup(req, res) {
   try {
@@ -9,10 +10,18 @@ async function signup(req, res) {
     }
 
     const user = await authService.signup({ email, password })
-    return res.status(201).json({
-      id: user.id,
+    const token = generateToken({
+      userId: user.id,
       email: user.email,
       role: user.role,
+    })
+    return res.status(201).json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+      },
     })
   } catch (error) {
     if (error.code === 'USER_EXISTS') {

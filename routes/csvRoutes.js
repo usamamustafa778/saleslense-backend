@@ -1,4 +1,6 @@
 const express = require('express')
+const authMiddleware = require('../middlewares/authMiddleware')
+const tenantAccessMiddleware = require('../middlewares/tenantAccessMiddleware')
 const {
   uploadCsv,
   getProducts,
@@ -7,9 +9,11 @@ const {
 
 const router = express.Router()
 
-router.post('/upload', uploadCsv)
-router.get('/products', getProducts)
-router.get('/orders', getOrders)
+router.use(authMiddleware)
+
+router.post('/upload', tenantAccessMiddleware({ source: 'body' }), uploadCsv)
+router.get('/products', tenantAccessMiddleware({ source: 'query' }), getProducts)
+router.get('/orders', tenantAccessMiddleware({ source: 'query' }), getOrders)
 
 module.exports = router
 

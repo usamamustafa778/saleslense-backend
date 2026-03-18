@@ -7,6 +7,8 @@ const authRoutes = require('./routes/authRoutes')
 const healthRoutes = require('./routes/healthRoutes')
 const csvRoutes = require('./routes/csvRoutes')
 const costRoutes = require('./routes/costRoutes')
+const dashboardRoutes = require('./routes/dashboardRoutes')
+const analyticsRoutes = require('./routes/analyticsRoutes')
 const profitRoutes = require('./routes/profitRoutes')
 const tenantRoutes = require('./routes/tenantRoutes')
 const reportsRoutes = require('./routes/reportsRoutes')
@@ -15,8 +17,8 @@ const app = express()
 
 app.use(
   cors({
-    origin: '*',
-    credentials: true,
+    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : '*',
+    credentials: false,
   }),
 )
 app.use(express.json())
@@ -25,6 +27,8 @@ app.use('/api/health', healthRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/csv', csvRoutes)
 app.use('/api/costs', costRoutes)
+app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/analytics', analyticsRoutes)
 app.use('/api', profitRoutes)
 app.use('/api', tenantRoutes)
 app.use('/api/reports', reportsRoutes)

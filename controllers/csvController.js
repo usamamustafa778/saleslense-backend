@@ -2,14 +2,11 @@ const csvService = require('../services/csvService')
 
 async function uploadCsv(req, res) {
   try {
-    const { type, tenantId, csv } = req.body
+    const { type, csv } = req.body
+    const tenantId = req.tenantId
 
     if (!type || !['orders', 'products'].includes(type)) {
       return res.status(400).json({ message: 'type must be "orders" or "products"' })
-    }
-
-    if (!tenantId) {
-      return res.status(400).json({ message: 'tenantId is required' })
     }
 
     if (!csv) {
@@ -18,7 +15,7 @@ async function uploadCsv(req, res) {
 
     const result = await csvService.processCsv({
       type,
-      tenantId: Number(tenantId),
+      tenantId,
       csv,
     })
 
@@ -35,8 +32,8 @@ async function uploadCsv(req, res) {
 
 async function getProducts(req, res) {
   try {
-    const { tenantId } = req.query
-    const data = await csvService.getProducts({ tenantId: tenantId && Number(tenantId) })
+    const tenantId = req.tenantId
+    const data = await csvService.getProducts({ tenantId })
     return res.json(data)
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -47,8 +44,8 @@ async function getProducts(req, res) {
 
 async function getOrders(req, res) {
   try {
-    const { tenantId } = req.query
-    const data = await csvService.getOrders({ tenantId: tenantId && Number(tenantId) })
+    const tenantId = req.tenantId
+    const data = await csvService.getOrders({ tenantId })
     return res.json(data)
   } catch (error) {
     // eslint-disable-next-line no-console

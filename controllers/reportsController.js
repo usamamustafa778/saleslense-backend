@@ -10,7 +10,7 @@ function parseDate(value) {
 
 async function getReports(req, res) {
   try {
-    const tenantId = Number(req.query.tenantId || 1)
+    const tenantId = req.tenantId
     const from = parseDate(req.query.from)
     const to = parseDate(req.query.to)
     const channel = req.query.channel ? String(req.query.channel) : undefined
@@ -43,7 +43,7 @@ function escapeCsv(value) {
 
 async function exportReports(req, res) {
   try {
-    const tenantId = Number(req.query.tenantId || 1)
+    const tenantId = req.tenantId
     const from = parseDate(req.query.from)
     const to = parseDate(req.query.to)
     const channel = req.query.channel ? String(req.query.channel) : undefined

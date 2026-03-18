@@ -2,15 +2,12 @@ const costService = require('../services/costService')
 
 async function upsertCosts(req, res) {
   try {
-    const { tenantId, productId, sku, cogsPerUnit, shippingPerUnit, currency, adSpend } =
+    const { productId, sku, cogsPerUnit, shippingPerUnit, currency, adSpend } =
       req.body
-
-    if (!tenantId) {
-      return res.status(400).json({ message: 'tenantId is required' })
-    }
+    const tenantId = req.tenantId
 
     const result = await costService.upsertCosts({
-      tenantId: Number(tenantId),
+      tenantId,
       productId,
       sku,
       cogsPerUnit,
@@ -29,12 +26,8 @@ async function upsertCosts(req, res) {
 
 async function getCosts(req, res) {
   try {
-    const { tenantId } = req.query
-    if (!tenantId) {
-      return res.status(400).json({ message: 'tenantId is required' })
-    }
-
-    const data = await costService.getCosts({ tenantId: Number(tenantId) })
+    const tenantId = req.tenantId
+    const data = await costService.getCosts({ tenantId })
     return res.json(data)
   } catch (error) {
     // eslint-disable-next-line no-console
