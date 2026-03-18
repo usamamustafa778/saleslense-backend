@@ -9,6 +9,7 @@ const csvRoutes = require('./routes/csvRoutes')
 const costRoutes = require('./routes/costRoutes')
 const profitRoutes = require('./routes/profitRoutes')
 const tenantRoutes = require('./routes/tenantRoutes')
+const reportsRoutes = require('./routes/reportsRoutes')
 
 const app = express()
 
@@ -26,6 +27,7 @@ app.use('/api/csv', csvRoutes)
 app.use('/api/costs', costRoutes)
 app.use('/api', profitRoutes)
 app.use('/api', tenantRoutes)
+app.use('/api/reports', reportsRoutes)
 
 const PORT = process.env.PORT || 4000
 
